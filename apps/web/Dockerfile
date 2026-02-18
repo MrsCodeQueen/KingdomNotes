@@ -2,17 +2,20 @@ FROM node:18-bullseye AS builder
 
 WORKDIR /app
 
-# Use corepack to ensure yarn@1 is available
-RUN corepack enable && corepack prepare yarn@1.22.22 --activate
+# Install curl and ca-certificates then install Bun
+RUN apt-get update && apt-get install -y curl ca-certificates && \
+	curl -fsSL https://bun.sh/install | bash
 
-# Copy only web app manifests first for better caching
-COPY package.json yarn.lock* ./
+ENV BUN_INSTALLER=/root/.bun/bin
+ENV PATH="$BUN_INSTALLER:$PATH"
 
-# Copy the rest of the web app
+# Copy app files
 COPY . .
 
-RUN yarn install --frozen-lockfile
-RUN yarn build
+# Use Bun to install and build
+RUN bun --version || true
+RUN bun install --non-interactive
+RUN bun run build
 
 FROM node:18-bullseye AS runtime
 WORKDIR /app
