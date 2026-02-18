@@ -1,5 +1,8 @@
 # KingdomNotes
 
+[![CI](https://github.com/MrsCodeQueen/KingdomNotes/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MrsCodeQueen/KingdomNotes/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+
 This repository contains the KingdomNotes monorepo template (web + mobile) and example apps.
 
 Quick links
@@ -20,14 +23,16 @@ cd KingdomNotes
 - Mobile app: `apps/mobile` (Expo)
 - External tests: `tests/` (Playwright)
 
-3. Run the web dev server (requires Bun installed for web dev in this template)
+3. Run the web dev server (uses Bun for web dev in this template; optional)
 
 ```bash
 cd apps/web
-# Using Bun for this template (if installed):
+# If using Bun (optional):
 bun dev
 
-# Or use the repo docs for alternate commands
+# Or use npm/yarn if preferred
+# yarn dev
+# npm run dev
 ```
 
 4. Run external tests (devserver tests)
@@ -39,8 +44,21 @@ npx playwright install chromium
 npm test
 ```
 
+Deploying on Railway (two options)
+
+Option A — Railpack (quick, no Docker):
+- In Railway service settings set the "Root Directory" to `apps/web` (or repository root with our root scripts).
+- Set these commands in Railway (Install / Build / Start):
+	- Install: `yarn install --frozen-lockfile`
+	- Build: `yarn build`
+	- Start: `yarn start`
+- Alternatively, set `RAILPACK_SPA_OUTPUT_DIR=dist` if you want Railway to serve the static `dist` output directly.
+
+Option B — Docker (recommended for deterministic builds):
+- Use the included `Dockerfile` at repo root. In Railway choose the Dockerfile builder to let Railway build the image and run the container.
+
 Notes
-- This repo uses multiple package managers (Bun for web, npm for mobile/tests). Follow the per-app README files for exact commands.
+- This repo uses multiple package managers (Yarn for web, npm for tests/mobile). Follow per-app README files for exact commands.
 - See `CLAUDE.md` and `TESTING_STRATEGY.md` for project guidelines and testing instructions.
 
 Contributing
@@ -49,7 +67,7 @@ Open a PR against `main`. Consider adding small, focused changes and include tes
 
 License
 
-This project does not include a license file; add one if you plan to publish.
+This project is licensed under the MIT License — see `LICENSE`.
 ```bash
 (cd apps/web && bun dev) & (cd apps/mobile && EAS_NO_VCS=1 EAS_PROJECT_ROOT=. EXPO_NO_METRO_LAZY=1 EXPO_UNSTABLE_TREE_SHAKING=1 EXPO_UNSTABLE_METRO_OPTIMIZE_GRAPH=1 bunx expo start --offline --web)
 ```
