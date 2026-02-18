@@ -1,3 +1,55 @@
+# KingdomNotes
+
+This repository contains the KingdomNotes monorepo template (web + mobile) and example apps.
+
+Quick links
+- Repo: https://github.com/MrsCodeQueen/KingdomNotes
+
+Getting started (local)
+
+1. Clone the repo
+
+```bash
+git clone https://github.com/MrsCodeQueen/KingdomNotes.git
+cd KingdomNotes
+```
+
+2. Inspect apps
+
+- Web app: `apps/web` (Vite + React Router)
+- Mobile app: `apps/mobile` (Expo)
+- External tests: `tests/` (Playwright)
+
+3. Run the web dev server (requires Bun installed for web dev in this template)
+
+```bash
+cd apps/web
+# Using Bun for this template (if installed):
+bun dev
+
+# Or use the repo docs for alternate commands
+```
+
+4. Run external tests (devserver tests)
+
+```bash
+cd tests
+npm install
+npx playwright install chromium
+npm test
+```
+
+Notes
+- This repo uses multiple package managers (Bun for web, npm for mobile/tests). Follow the per-app README files for exact commands.
+- See `CLAUDE.md` and `TESTING_STRATEGY.md` for project guidelines and testing instructions.
+
+Contributing
+
+Open a PR against `main`. Consider adding small, focused changes and include tests when possible.
+
+License
+
+This project does not include a license file; add one if you plan to publish.
 ```bash
 (cd apps/web && bun dev) & (cd apps/mobile && EAS_NO_VCS=1 EAS_PROJECT_ROOT=. EXPO_NO_METRO_LAZY=1 EXPO_UNSTABLE_TREE_SHAKING=1 EXPO_UNSTABLE_METRO_OPTIMIZE_GRAPH=1 bunx expo start --offline --web)
 ```
