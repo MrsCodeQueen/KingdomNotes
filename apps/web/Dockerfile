@@ -2,9 +2,21 @@ FROM node:18-bullseye AS builder
 
 WORKDIR /app
 
-# Install curl and ca-certificates then try to install Bun (may fail in some CI environments)
-RUN apt-get update && apt-get install -y curl ca-certificates || true
-RUN (curl -fsSL https://bun.sh/install | bash) || echo "bun installer failed, will fallback to yarn"
+# Install curl, ca-certificates and unzip; then vendor a pinned Bun release for the current architecture
+RUN apt-get update && apt-get install -y curl ca-certificates unzip || true
+
+# Pin Bun version to avoid network-installer indeterminism
+ENV BUN_VERSION=1.0.18
+ENV BUN_DIR=/root/.bun
+
+RUN arch=$(uname -m) && \
+	if [ "$arch" = "x86_64" ] || [ "$arch" = "amd64" ]; then asset="bun-linux-x64.zip"; \
+	elif [ "$arch" = "aarch64" ] || [ "$arch" = "arm64" ]; then asset="bun-linux-aarch64.zip"; \
+	else echo "unknown arch: $arch, attempting x64" && asset="bun-linux-x64.zip"; fi && \
+	url="https://github.com/oven-sh/bun/releases/download/bun-v${BUN_VERSION}/${asset}" && \
+	echo "Downloading Bun from $url" && \
+	curl -fsSL -o /tmp/bun.zip "$url" && \
+	mkdir -p ${BUN_DIR} && unzip /tmp/bun.zip -d ${BUN_DIR} && rm /tmp/bun.zip || echo "bun download/extract failed, will fallback to yarn"
 
 # Ensure Bun is on PATH if installed
 ENV BUN_INSTALLER=/root/.bun/bin
