@@ -1,11 +1,4 @@
 {
-	"name": "kingdomnotes-root",
-	"private": true,
-	"scripts": {
-		"install": "cd apps/web && yarn install",
-		"build": "cd apps/web && yarn build",
-		"start": "cd apps/web && yarn start"
-	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4"
 	},
