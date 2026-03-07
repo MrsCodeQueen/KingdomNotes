@@ -1,3 +1,4 @@
+// Middleware for authentication checks - Updated to use supabase-js directly
 import { updateSession } from '@/lib/supabase/middleware'
 import { type NextRequest } from 'next/server'
 
