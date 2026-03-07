@@ -46,7 +46,7 @@ const TUTORIAL_STEPS = [
     icon: <Sparkles className="h-8 w-8" />,
     content: `The Actions tab is your main gameplay area. Here you can perform activities that build your skills and ministry:`,
     categories: [
-      { name: "Spiritual", examples: "Prayer, Worship, Scripture Study, Soaking", benefit: "Builds Anointing and Favor" },
+      { name: "Devotion", examples: "Prayer, Worship, Scripture Study, Soaking", benefit: "Builds Anointing and Favor" },
       { name: "Performance", examples: "Busking, Church Service, Concerts, Tours", benefit: "Earns money and builds Charisma" },
       { name: "Creative", examples: "Songwriting, Recording, Jam Sessions", benefit: "Creates songs and builds skills" },
       { name: "Leadership", examples: "Lead Worship Team, Train Musicians, Organize Outreach", benefit: "Builds Leadership stat" },
