@@ -39,6 +39,7 @@ import { StoryPanel } from "@/components/game/story-panel"
 import { PerformancePanel } from "@/components/game/performance-panel"
 import { OpportunitiesPanel } from "@/components/game/opportunities-panel"
 import { EarningsClaimPanel } from "@/components/game/earnings-claim-panel"
+import { BusinessPanel } from "@/components/game/business-panel"
 import { DailyChallenges } from "@/components/game/daily-challenges"
 import { MobileNav } from "@/components/game/mobile-nav"
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt"
@@ -54,7 +55,7 @@ import {
   Zap, Flame, DollarSign, Star, Shield,
   Crown, Music, Swords, ShoppingBag,
   Trophy, Globe, BookOpen, Coins, Heart,
-  Briefcase, GraduationCap, Radio, User, Users, Share2, Home, HelpCircle
+  Briefcase, GraduationCap, Radio, User, Users, Share2, Home, HelpCircle, Building2
 } from "lucide-react"
 
 export default function GamePage() {
@@ -404,6 +405,7 @@ export default function GamePage() {
               <TabsTrigger value="songs" className="gap-2"><Radio className="h-4 w-4" /> Studio</TabsTrigger>
               <TabsTrigger value="social" className="gap-2"><Users className="h-4 w-4" /> Fellowship</TabsTrigger>
               <TabsTrigger value="finance" className="gap-2"><Coins className="h-4 w-4" /> Finance</TabsTrigger>
+              <TabsTrigger value="business" className="gap-2"><Building2 className="h-4 w-4" /> Business</TabsTrigger>
               <TabsTrigger value="shop" className="gap-2"><ShoppingBag className="h-4 w-4" /> Market</TabsTrigger>
               <TabsTrigger value="world" className="gap-2"><Globe className="h-4 w-4" /> Regions</TabsTrigger>
               <TabsTrigger value="story" className="gap-2"><BookOpen className="h-4 w-4" /> Story</TabsTrigger>
@@ -477,6 +479,10 @@ export default function GamePage() {
                 onClaim={fetchGameData}
               />
               <StreamingPanel />
+            </TabsContent>
+
+            <TabsContent value="business" className="mt-0 space-y-4">
+              <BusinessPanel character={character} onUpdate={fetchGameData} />
             </TabsContent>
 
             <TabsContent value="shop" className="mt-0 space-y-4">
