@@ -1,12 +1,37 @@
+// Middleware helper - Uses cookie checking instead of @supabase/ssr
 import { NextResponse, type NextRequest } from 'next/server'
 
-// Simplified middleware - authentication is handled by:
-// 1. Supabase client-side auth hooks
-// 2. RLS (Row Level Security) policies on the database
-// 3. API route authentication checks
-// This middleware just passes requests through
 export async function updateSession(request: NextRequest) {
-  // Simply return the request as-is
-  // Auth is enforced at the database level via RLS
-  return NextResponse.next()
+  try {
+    // Check for Supabase auth cookies
+    const cookies = request.cookies
+    const hasAuthToken = cookies.has('sb-access-token') || 
+                         cookies.has('sb-auth-token') ||
+                         cookies.has('sb-refresh-token')
+    
+    // Also check for combined auth cookie that Supabase may use
+    const authCookie = Array.from(cookies.entries()).find(
+      ([name]) => name.startsWith('sb-') && name.includes('auth')
+    )
+    
+    const isAuthenticated = hasAuthToken || !!authCookie
+
+    // If not authenticated and trying to access protected routes, redirect to home
+    if (!isAuthenticated && request.nextUrl.pathname.startsWith('/game')) {
+      return NextResponse.redirect(new URL('/', request.url))
+    }
+
+    return NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    })
+  } catch (error) {
+    // On error, allow the request to proceed
+    return NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    })
+  }
 }
