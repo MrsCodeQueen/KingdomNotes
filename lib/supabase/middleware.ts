@@ -1,4 +1,5 @@
 // Simple pass-through middleware - NO @supabase/ssr dependency
+// Last updated: 2026-03-07 - Fixed to remove @supabase/ssr import
 // Authentication is handled client-side via Supabase Auth and RLS policies
 import { NextResponse, type NextRequest } from 'next/server'
 
