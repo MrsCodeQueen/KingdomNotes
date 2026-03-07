@@ -1,0 +1,564 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================
+   KINGDOM NOTES — "WORSHIP NIGHT" THEME
+   Deep indigo sky + radiant gold stage light
+   ============================================ */
+
+/* Light mode: warm ivory with bold gold accents */
+:root {
+  --background: oklch(0.97 0.006 85);
+  --foreground: oklch(0.15 0.02 260);
+  --card: oklch(0.99 0.003 85);
+  --card-foreground: oklch(0.15 0.02 260);
+  --popover: oklch(0.99 0.003 85);
+  --popover-foreground: oklch(0.15 0.02 260);
+  --primary: oklch(0.65 0.20 55);
+  --primary-foreground: oklch(0.99 0.003 85);
+  --secondary: oklch(0.93 0.01 260);
+  --secondary-foreground: oklch(0.25 0.04 260);
+  --muted: oklch(0.94 0.008 260);
+  --muted-foreground: oklch(0.45 0.03 260);
+  --accent: oklch(0.55 0.14 180);
+  --accent-foreground: oklch(0.99 0.003 85);
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(0.99 0.003 85);
+  --border: oklch(0.88 0.015 260);
+  --input: oklch(0.94 0.008 260);
+  --ring: oklch(0.65 0.20 55);
+  --radius: 0.625rem;
+  --chart-1: oklch(0.65 0.20 55);
+  --chart-2: oklch(0.55 0.14 180);
+  --chart-3: oklch(0.55 0.18 300);
+  --chart-4: oklch(0.60 0.16 140);
+  --chart-5: oklch(0.55 0.22 25);
+  --sidebar-background: oklch(0.15 0.03 265);
+  --sidebar-foreground: oklch(0.92 0.02 80);
+  --sidebar-primary: oklch(0.78 0.18 65);
+  --sidebar-primary-foreground: oklch(0.12 0.03 265);
+  --sidebar-accent: oklch(0.22 0.04 265);
+  --sidebar-accent-foreground: oklch(0.92 0.02 80);
+  --sidebar-border: oklch(0.25 0.04 265);
+  --sidebar-ring: oklch(0.78 0.18 65);
+}
+
+/* Dark mode: deep midnight indigo + radiant gold */
+.dark {
+  --background: oklch(0.12 0.03 265);
+  --foreground: oklch(0.94 0.015 80);
+  --card: oklch(0.16 0.035 265);
+  --card-foreground: oklch(0.94 0.015 80);
+  --popover: oklch(0.16 0.035 265);
+  --popover-foreground: oklch(0.94 0.015 80);
+  --primary: oklch(0.78 0.18 65);
+  --primary-foreground: oklch(0.12 0.03 265);
+  --secondary: oklch(0.20 0.04 265);
+  --secondary-foreground: oklch(0.90 0.02 80);
+  --muted: oklch(0.20 0.04 265);
+  --muted-foreground: oklch(0.58 0.03 260);
+  --accent: oklch(0.60 0.14 180);
+  --accent-foreground: oklch(0.12 0.03 265);
+  --destructive: oklch(0.60 0.22 25);
+  --destructive-foreground: oklch(0.94 0.015 80);
+  --border: oklch(0.25 0.04 265);
+  --input: oklch(0.20 0.04 265);
+  --ring: oklch(0.78 0.18 65);
+  --chart-1: oklch(0.78 0.18 65);
+  --chart-2: oklch(0.60 0.14 180);
+  --chart-3: oklch(0.70 0.18 300);
+  --chart-4: oklch(0.65 0.16 140);
+  --chart-5: oklch(0.65 0.22 25);
+  --sidebar-background: oklch(0.10 0.035 268);
+  --sidebar-foreground: oklch(0.92 0.02 80);
+  --sidebar-primary: oklch(0.78 0.18 65);
+  --sidebar-primary-foreground: oklch(0.10 0.035 268);
+  --sidebar-accent: oklch(0.18 0.04 265);
+  --sidebar-accent-foreground: oklch(0.92 0.02 80);
+  --sidebar-border: oklch(0.22 0.04 265);
+  --sidebar-ring: oklch(0.78 0.18 65);
+}
+
+@theme inline {
+  --font-sans: 'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback', monospace;
+  --font-serif: 'Playfair Display', 'Playfair Display Fallback', serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-sidebar-background: var(--sidebar-background);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* ============================================
+   WORSHIP AMBIENT GLOW — STAGE LIGHT EFFECT
+   ============================================ */
+.worship-glow {
+  position: relative;
+}
+
+/* Top spotlight — warm gold cone */
+.worship-glow::before {
+  content: "";
+  position: fixed;
+  top: -20%;
+  left: 50%;
+  width: 100%;
+  height: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center,
+      oklch(0.78 0.18 65 / 0.06) 0%,
+      oklch(0.65 0.12 55 / 0.03) 35%,
+      transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Bottom fill — subtle teal uplighting */
+.worship-glow::after {
+  content: "";
+  position: fixed;
+  bottom: -15%;
+  left: 50%;
+  width: 70%;
+  height: 35%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center,
+      oklch(0.60 0.10 180 / 0.04) 0%,
+      transparent 55%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.dark .worship-glow::before {
+  background: radial-gradient(ellipse at center,
+      oklch(0.78 0.18 65 / 0.10) 0%,
+      oklch(0.60 0.14 55 / 0.04) 35%,
+      transparent 65%);
+}
+
+.dark .worship-glow::after {
+  background: radial-gradient(ellipse at center,
+      oklch(0.55 0.12 180 / 0.06) 0%,
+      transparent 55%);
+}
+
+/* ============================================
+   GOLD SHIMMER TEXT — FOR HEADLINES
+   ============================================ */
+.text-worship {
+  background: linear-gradient(135deg,
+      oklch(0.60 0.20 50) 0%,
+      oklch(0.72 0.18 65) 40%,
+      oklch(0.60 0.20 50) 80%,
+      oklch(0.72 0.18 65) 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer-text 4s ease-in-out infinite;
+}
+
+.dark .text-worship {
+  background: linear-gradient(135deg,
+      oklch(0.78 0.18 65) 0%,
+      oklch(0.90 0.14 75) 40%,
+      oklch(0.78 0.18 65) 80%,
+      oklch(0.90 0.14 75) 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer-text 4s ease-in-out infinite;
+}
+
+@keyframes shimmer-text {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ============================================
+   CARD HOVER GLOW — STAGE SPOTLIGHT
+   ============================================ */
+.card-glow {
+  transition: box-shadow 0.35s ease, transform 0.35s ease, border-color 0.35s ease;
+}
+
+.card-glow:hover {
+  box-shadow:
+    0 0 20px oklch(0.65 0.16 55 / 0.10),
+    0 0 50px oklch(0.55 0.12 180 / 0.06);
+  transform: translateY(-1px);
+  border-color: oklch(0.65 0.16 55 / 0.30);
+}
+
+.dark .card-glow:hover {
+  box-shadow:
+    0 0 25px oklch(0.78 0.18 65 / 0.12),
+    0 0 60px oklch(0.55 0.14 180 / 0.06);
+  transform: translateY(-1px);
+  border-color: oklch(0.78 0.18 65 / 0.25);
+}
+
+/* ============================================
+   POUR OUT / VESSEL OVERFLOW EFFECTS
+   ============================================ */
+@keyframes vessel-overflow {
+  0% { filter: drop-shadow(0 0 5px oklch(0.65 0.20 55)); }
+  50% { filter: drop-shadow(0 0 25px oklch(0.78 0.18 65)); }
+  100% { filter: drop-shadow(0 0 5px oklch(0.65 0.20 55)); }
+}
+
+.overflow-active {
+  animation: vessel-overflow 2s infinite ease-in-out;
+  border-color: var(--primary) !important;
+}
+
+/* ============================================
+   STAT BAR SHIMMER
+   ============================================ */
+@keyframes stat-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.stat-shimmer {
+  background-size: 200% 100%;
+  animation: stat-shimmer 2s linear infinite;
+}
+
+/* ============================================
+   LEVEL UP CELEBRATION
+   ============================================ */
+@keyframes level-up-burst {
+  0% { transform: scale(0.8); opacity: 0; }
+  30% { transform: scale(1.15); opacity: 1; }
+  50% { transform: scale(1); }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+.level-up-burst {
+  animation: level-up-burst 2s ease-out forwards;
+}
+
+/* ============================================
+   FLOATING MUSIC NOTES — LOGO ANIMATION
+   ============================================ */
+@keyframes float-note {
+  0% {
+    transform: translateY(0) scale(0.6) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.7;
+    transform: translateY(-4px) scale(0.85) rotate(-5deg);
+  }
+  40% {
+    opacity: 0.5;
+    transform: translateY(-18px) scale(0.75) rotate(8deg);
+  }
+  70% {
+    opacity: 0.3;
+    transform: translateY(-32px) scale(0.6) rotate(-4deg);
+  }
+  100% {
+    transform: translateY(-48px) scale(0.4) rotate(10deg);
+    opacity: 0;
+  }
+}
+
+.floating-note {
+  animation: float-note 3.5s ease-out infinite;
+  pointer-events: none;
+}
+
+/* ============================================
+   FLOATING STAT GAIN NUMBERS
+   ============================================ */
+@keyframes float-up {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-40px); opacity: 0; }
+}
+
+.float-up {
+  animation: float-up 1.5s ease-out forwards;
+}
+
+/* ============================================
+   NEWS TICKER SCROLL
+   ============================================ */
+@keyframes ticker-scroll {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.ticker-scroll {
+  animation: ticker-scroll 30s linear infinite;
+}
+
+/* ============================================
+   ACTION RESULT SLIDE IN/OUT
+   ============================================ */
+@keyframes slide-in-bottom {
+  0% { transform: translateY(100%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slide-out-bottom {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+
+.slide-in-bottom {
+  animation: slide-in-bottom 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.slide-out-bottom {
+  animation: slide-out-bottom 0.3s ease-in forwards;
+}
+
+/* ============================================
+   XP FLASH & CRITICAL PULSE
+   ============================================ */
+@keyframes xp-flash {
+  0% { background-color: oklch(0.78 0.18 65 / 0.3); }
+  100% { background-color: transparent; }
+}
+
+.xp-flash {
+  animation: xp-flash 1s ease-out;
+}
+
+@keyframes critical-pulse {
+  0%, 100% { box-shadow: 0 0 10px oklch(0.78 0.18 65 / 0.2); }
+  50% { box-shadow: 0 0 35px oklch(0.78 0.18 65 / 0.5), 0 0 70px oklch(0.60 0.14 180 / 0.15); }
+}
+
+.critical-pulse {
+  animation: critical-pulse 1.5s ease-in-out 3;
+}
+
+/* ============================================
+   LANDING PAGE MARQUEE
+   ============================================ */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}
+
+/* ============================================
+   SLOW SPIN FOR DECORATIVE ELEMENTS
+   ============================================ */
+@keyframes spin-slow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+/* ============================================
+   GOLDEN GLOW BUTTON — FOR CTA ACTIONS
+   ============================================ */
+.btn-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-glow::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(135deg,
+      oklch(0.78 0.18 65 / 0.4),
+      oklch(0.60 0.14 180 / 0.2),
+      oklch(0.78 0.18 65 / 0.4));
+  background-size: 300% 300%;
+  animation: glow-rotate 3s linear infinite;
+  z-index: -1;
+  filter: blur(8px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.btn-glow:hover::after {
+  opacity: 1;
+}
+
+@keyframes glow-rotate {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ============================================
+   RARITY COLORS — FOR EVENTS & OPPORTUNITIES
+   ============================================ */
+.rarity-common {
+  border-left: 3px solid oklch(0.58 0.03 260);
+}
+
+.rarity-rare {
+  border-left: 3px solid oklch(0.60 0.14 180);
+}
+
+.rarity-epic {
+  border-left: 3px solid oklch(0.78 0.18 65);
+}
+
+.rarity-legendary {
+  border-left: 3px solid oklch(0.70 0.22 25);
+  box-shadow: inset 0 0 30px oklch(0.70 0.22 25 / 0.06);
+}
+
+/* ============================================
+   MOBILE APP UTILITIES — PWA SAFE AREAS
+   ============================================ */
+
+/* Safe area padding for notched devices */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-left {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+
+.safe-right {
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+.safe-x {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+.safe-y {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Bottom navigation bar for mobile */
+.mobile-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Main content area padding when mobile nav is present */
+.has-mobile-nav {
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Touch-friendly tap targets */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Prevent text selection on game UI elements */
+.no-select {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Smooth scrolling for mobile */
+.scroll-smooth {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbars on mobile while keeping scroll functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* PWA standalone mode adjustments */
+@media (display-mode: standalone) {
+  .pwa-hidden {
+    display: none !important;
+  }
+  
+  .pwa-visible {
+    display: flex !important;
+  }
+}
+
+/* Mobile-first responsive breakpoints */
+@media (max-width: 640px) {
+  .mobile-full {
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .mobile-stack {
+    flex-direction: column;
+  }
+  
+  .mobile-hide {
+    display: none !important;
+  }
+}
