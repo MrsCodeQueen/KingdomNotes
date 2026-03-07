@@ -1,0 +1,46 @@
+{
+  "name": "Kingdom Notes",
+  "short_name": "Kingdom Notes",
+  "description": "A faith-based music MMORPG where you build your gospel ministry through worship, song-writing, and divine encounters.",
+  "start_url": "/game",
+  "display": "standalone",
+  "background_color": "#0f1729",
+  "theme_color": "#d9aa3c",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/game-screenshot.jpg",
+      "sizes": "1080x1920",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Kingdom Notes Game Screen"
+    }
+  ],
+  "categories": ["games", "entertainment", "music"],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "shortcuts": [
+    {
+      "name": "Play Now",
+      "short_name": "Play",
+      "description": "Jump into your ministry",
+      "url": "/game",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
