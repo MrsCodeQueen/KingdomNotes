@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ShoppingBag, Guitar, BookOpen, Mic, Sparkles, Lock, Check, Building2, Crown } from "lucide-react"
+import { ShoppingBag, Guitar, BookOpen, Mic, Sparkles, Lock, Check, Crown } from "lucide-react"
 import type { ShopItem, InventoryItem } from "@/lib/game/types"
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
@@ -17,7 +17,6 @@ const TYPE_ICONS: Record<string, React.ReactNode> = {
   equipment: <Mic className="h-4 w-4" />,
   spiritual: <Sparkles className="h-4 w-4" />,
   training: <BookOpen className="h-4 w-4" />,
-  business: <Building2 className="h-4 w-4" />,
   ministry: <Crown className="h-4 w-4" />,
 }
 
@@ -25,14 +24,13 @@ const TYPE_LABELS: Record<string, string> = {
   instrument: "Instruments",
   study_material: "Study Materials",
   equipment: "Equipment",
-  spiritual: "Spiritual",
+  spiritual: "Devotion",
   training: "Training",
-  business: "Businesses",
   ministry: "Ministry",
 }
 
 // Preferred tab order
-const TYPE_ORDER = ["instrument", "equipment", "business", "ministry", "training", "study_material", "spiritual"]
+const TYPE_ORDER = ["instrument", "equipment", "ministry", "training", "study_material", "spiritual"]
 
 interface ShopPanelProps {
   characterLevel: number

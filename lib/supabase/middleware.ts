@@ -1,36 +1,36 @@
-// Using supabase-js directly (not @supabase/ssr) for middleware compatibility
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function updateSession(request: NextRequest) {
-  const supabaseResponse = NextResponse.next({
-    request,
-  })
+  try {
+    // Check for Supabase auth cookies
+    const cookies = request.cookies
+    const hasAuthToken = cookies.has('sb-access-token') || 
+                         cookies.has('sb-auth-token') ||
+                         cookies.has('sb-refresh-token')
+    
+    // Also check for combined auth cookie that Supabase may use
+    const authCookie = Array.from(cookies.entries()).find(
+      ([name]) => name.startsWith('sb-') && name.includes('auth')
+    )
+    
+    const isAuthenticated = hasAuthToken || !!authCookie
 
-  // For middleware, we use a simpler approach with just cookie-based auth check
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    // If not authenticated and trying to access protected routes, redirect to home
+    if (!isAuthenticated && request.nextUrl.pathname.startsWith('/game')) {
+      return NextResponse.redirect(new URL('/', request.url))
+    }
 
-  // Get the access token from cookies
-  const accessToken = request.cookies.get('sb-access-token')?.value
-  const refreshToken = request.cookies.get('sb-refresh-token')?.value
-  
-  // Also check for the combined auth cookie that Supabase uses
-  const authCookieName = `sb-${new URL(supabaseUrl).hostname.split('.')[0]}-auth-token`
-  const authCookie = request.cookies.get(authCookieName)?.value
-
-  // Check if user has any auth cookies
-  const hasAuthCookies = accessToken || refreshToken || authCookie
-
-  // Protected routes check
-  if (
-    (request.nextUrl.pathname.startsWith('/game') ||
-      request.nextUrl.pathname.startsWith('/protected')) &&
-    !hasAuthCookies
-  ) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/auth/login'
-    return NextResponse.redirect(url)
+    return NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    })
+  } catch (error) {
+    // On error, allow the request to proceed
+    return NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    })
   }
-
-  return supabaseResponse
 }
