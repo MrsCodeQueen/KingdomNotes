@@ -58,7 +58,7 @@ import {
   Briefcase, GraduationCap, Radio, User, Users, Share2, Home, HelpCircle, Building2
 } from "lucide-react"
 
-export function GameClient() {
+export function GamePageClient() {
   const [character, setCharacter] = useState<Character | null>(null)
   const [buffs, setBuffs] = useState<Buff[]>([])
   const [log, setLog] = useState<ActivityLogEntry[]>([])
