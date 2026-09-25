@@ -1,0 +1,38 @@
+{
+  "summary": "Verified Kingdom Notes browser flow end-to-end. Landing, sign-up, and login all work; login for confirmed test account authenticates via Supabase and navigates to /game/onboarding. Onboarding character creation succeeds (POST /rest/v1/characters -> 201) and /game renders the full character dashboard for the newly-created TestMinister. Client-side @supabase/ssr session cookie is set correctly (single chunk, 2627 chars, name 'sb-dwmvbowpdhfktkbwpzys-auth-token'). CRITICAL infrastructure issue: every /api/game/* route returns 502 Bad Gateway through the public preview URL because the Kubernetes ingress routes /api/* to port 8001 (FastAPI backend slot) while this Next.js-only app serves /api/* itself from port 3000. On localhost:3000 the same Next.js API routes respond correctly (200 for public /api/game/lodgings, 401 for /api/game/challenges without auth), so the server-side auth path could NOT be verified via the public URL. Server-cookie SSR parsing is thus unverified end-to-end from the browser.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "/api/game/* (public URL)", "issue": "All Next.js API routes return 502 Bad Gateway via preview.emergentagent.com ingress. K8s ingress routes /api/* to port 8001 where the FastAPI supervisor is FATAL (no /app/backend directory exists — this is a Next.js-only app). Same routes work on localhost:3000 (200/401 as expected). Blocks in-app calls: /api/game/lodgings, /api/game/presence, /api/game/challenges, /api/game/opportunities all fail from the browser.", "priority": "CRITICAL"}
+    ],
+    "minor": [
+      {"endpoint": "/rest/v1/characters", "issue": "Supabase returns 406 when character row does not yet exist (PostgREST .single() with no rows). Handled gracefully by client but noisy in console."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "In-game data fetches (lodgings/presence/challenges/opportunities)", "issue": "502 from /api/game/* through public URL — data panels will silently render empty on the deployed preview environment. Not a code bug; ingress rewrite issue.", "affected_selectors": ["/api/game/lodgings", "/api/game/presence", "/api/game/challenges", "/api/game/opportunities"]}
+    ],
+    "design_issues": [
+      {"screen": "All pages", "issues": ["Vercel Web Analytics script 404 (/_vercel/insights/script.js) — harmless but pollutes console. Consider removing @vercel/analytics or gating on VERCEL env."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "INFRA/ENV: Ingress is routing /api/* to port 8001 but no server runs there. For a Next.js-only app the ingress must route /api/* to the Next.js server on :3000, OR the platform config must allow the app to serve /api/* from port 3000. Recommend either (a) reconfiguring the ingress rule for this preview environment, or (b) running a tiny reverse proxy on :8001 that forwards to :3000 (e.g. socat/nginx) so external /api/* traffic reaches Next.js.",
+    "Because of the 502, the SSR cookie parsing in lib/supabase/server.ts (chunked/base64 @supabase/ssr cookie handling — the originally flagged potential bug) COULD NOT be verified from the browser. On localhost:3000, /api/game/challenges returned 401 without auth (expected). Recommend main agent to (i) fix the ingress, then (ii) rerun this test to confirm /api/game/challenges returns 200 when the browser sends the sb-<ref>-auth-token cookie. If it still returns 401 after ingress fix, THEN the server.ts cookie parser needs updating.",
+    "Consider removing the Vercel Analytics script (or conditional-loading it) to silence the 404s."
+  ],
+  "critical_code_review_comments": [
+    "lib/supabase/server.ts manually JSON.parses the auth cookie and picks parsed.access_token || parsed[0]. Modern @supabase/ssr cookies can be base64-prefixed ('base64-<payload>') and/or chunked ('<name>.0', '<name>.1'). Current parser handles neither. Recommend switching to createServerClient from @supabase/ssr with cookies() from next/headers instead of hand-rolling the parse. (Not verifiable end-to-end here due to ingress 502.)",
+    "app/auth/login/page.tsx uses only router.push('/game') after signIn; no router.refresh(). With App Router + @supabase/ssr, a router.refresh() after signInWithPassword ensures Server Components see the new session. Current behaviour still worked in this test because the middleware/getUser refetches on the /game render, but it's fragile."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only)", "frontend": "80% (auth + onboarding + game dashboard OK; server API routes blocked by ingress 502)"},
+  "test_credentials": "e1-verify-test@kingdomnotes.test / KingdomTest123! (used successfully). Fresh sign-up e1-signup-1790378581@kingdomnotes.test also created and auto-logged into /game/onboarding.",
+  "seed_data_creation": "Created a character row for the verify test account (TestMinister, Male, North America) by completing onboarding. The Supabase user 189e9ca9-d17e-4046-9669-cf1676a44ae6 now has 1 character. On subsequent logins this account will land on /game instead of /game/onboarding.",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Confirmed login account already has a character now, so it lands on /game (not /game/onboarding). To re-test onboarding, create a new signup. The critical remaining test after main agent fixes the ingress: log in, navigate to /game, and confirm every /api/game/* XHR returns 200 (not 401 and not 502). If 401 -> server.ts cookie parsing is broken; if 502 -> ingress still misrouted.",
+  "rca of the issue": "Root cause of /api/game/* 502: this preview environment's K8s ingress rewrites all /api/* paths to backend port 8001 (standard FastAPI+React template assumption), but the app is a pure Next.js app that owns /api/*. The supervisor 'backend' program is FATAL because /app/backend does not exist. Localhost:3000/api/game/* works (verified via curl: 200 on /api/game/lodgings, 401 on /api/game/challenges without auth). Mitigation options: reconfigure ingress for Next.js apps, or run a lightweight :8001 -> :3000 proxy via supervisor."
+}
