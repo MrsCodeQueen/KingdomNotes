@@ -1,0 +1,41 @@
+{
+  "summary": "Re-tested authenticated /api/game/* path per iteration_2 request. Login with e1-verify-test@kingdomnotes.test succeeds, navigation to /game works, and the character dashboard (TestMinister, Street Musician, LVL 1, stats Energy 100/100, Anointing 20/100, Charisma 5/100, Integrity 10/100, Leadership 1/100, Funds $50) renders correctly (rendered via client-side supabase-js, not via /api). HOWEVER: every authenticated /api/game/* request returns 401 Unauthorized (except /api/game/lodgings which returns 500). Root cause identified in lib/supabase/server.ts: the auth cookie value now starts with the literal prefix 'base64-' followed by base64-encoded JSON (new @supabase/ssr format), but server.ts does JSON.parse(authCookie) directly, which throws, and then falls back to using the raw 'base64-...' string as the Bearer token — Supabase rejects it → 401. The proxy/ingress is fine (200/401 both reach Next.js, so it is NOT a 502 issue anymore). This is a cookie-parser bug in lib/supabase/server.ts.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "/api/game/presence (POST)", "issue": "401 Unauthorized for authenticated browser session. server.ts cannot parse the 'base64-<...>' prefixed @supabase/ssr cookie.", "priority": "CRITICAL"},
+      {"endpoint": "/api/game/challenges (GET)", "issue": "401 Unauthorized. Body: {\"error\":\"Unauthorized\"}. Same cookie-parse RCA.", "priority": "CRITICAL"},
+      {"endpoint": "/api/game/opportunities (GET)", "issue": "401 Unauthorized. Body: {\"error\":\"Unauthorized\"}. Same cookie-parse RCA.", "priority": "CRITICAL"},
+      {"endpoint": "/api/game/action (POST)", "issue": "401 Unauthorized on every attempted action id (private_worship, worship, pray, nap, busking, take_nap, street_busking). Body: {\"error\":\"Unauthorized\"}. Same cookie-parse RCA. Write-path broken end-to-end.", "priority": "CRITICAL"},
+      {"endpoint": "/api/game/lodgings?region=na (GET)", "issue": "500 Internal Server Error. Body: {\"error\":\"Failed to fetch lodgings\"}. Likely same server auth path fails → downstream Supabase query fails and route swallows to 500 instead of 401. Needs backend log inspection.", "priority": "HIGH"}
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "/game dashboard initial load (fetchGameData in components/game/game-page-client.tsx)", "issue": "Three of four initial /api/game/* calls return 401 and one returns 500. Dashboard UI itself still renders base character (Supabase client-side query works) but Active Buffs, Activity Log, Daily Challenges progress, presence heartbeat, opportunities scouting, and lodgings list are all backed by failing routes.", "affected_selectors": ["/api/game/presence", "/api/game/challenges", "/api/game/opportunities", "/api/game/lodgings"]},
+      {"flow": "In-game action (any button that POSTs /api/game/action)", "issue": "POST /api/game/action returns 401 for every action id tested. No UI stat change or result overlay possible. Confirmed via direct fetch with credentials:'include' after successful browser login.", "affected_selectors": ["/api/game/action"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Fix lib/supabase/server.ts cookie parser to handle @supabase/ssr 'base64-' prefixed cookies. Suggested fix: if authCookie.startsWith('base64-') then const decoded = Buffer.from(authCookie.slice(7), 'base64').toString('utf-8'); JSON.parse(decoded). Also handle chunked cookies (sb-<ref>-auth-token.0, .1, ...) by concatenating them before decoding. After decoding, use parsed.access_token (object shape) or parsed[0] (array shape).",
+    "Consider using @supabase/ssr's createServerClient with getAll/setAll cookie adapter instead of the hand-rolled parser — it handles base64 and chunking natively.",
+    "Investigate /api/game/lodgings returning 500 instead of 401 — likely swallowing an auth/DB error. Improve error handling to surface the underlying reason and return proper 401 when unauthenticated.",
+    "After fix, re-verify all /api/game/* return 200 for an authenticated session and that POST /api/game/action mutates state and returns 200 with a result payload."
+  ],
+  "critical_code_review_comments": [
+    "lib/supabase/server.ts line 20: JSON.parse(authCookie) does not account for the @supabase/ssr 'base64-<b64>' cookie format that Supabase writes today. Silent catch → falls through to using raw prefixed string as Bearer token → guaranteed 401. This is the root cause of the entire 401 storm.",
+    "server.ts also does not handle chunked cookies (sb-<ref>-auth-token.0/.1/...) which @supabase/ssr uses when the session exceeds ~3KB. Current cookie is 2627 bytes so not chunked here, but this will regress once refresh tokens grow.",
+    "app/api/game/lodgings/route.ts appears to catch errors and blanket-return 500 with a generic message; should distinguish 401 vs 500 and log the underlying error."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "0% (5/5 tested /api/game/* endpoints failing under authenticated session)", "frontend": "40% (login + navigation + client-side character render OK; all API-backed panels broken)"},
+  "test_credentials": "e1-verify-test@kingdomnotes.test / KingdomTest123! — login succeeds, character TestMinister renders",
+  "seed_data_creation": "None",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Ingress/proxy is now correct (verified: /api/* on public URL reaches Next.js on :3000; unauthenticated /api/game/challenges returns 401, not 502). Remaining blocker is lib/supabase/server.ts cookie parsing. Observed cookie: name='sb-dwmvbowpdhfktkbwpzys-auth-token', length 2627, VALUE STARTS WITH LITERAL 'base64-' followed by base64-encoded JSON (i.e. base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpo...). Once server.ts strips 'base64-' and base64-decodes before JSON.parse, all /api/game/* should return 200. After fix, retest with the same credentials and confirm at minimum: POST /api/game/presence=200, GET /api/game/challenges=200, GET /api/game/opportunities=200, GET /api/game/lodgings?region=na=200, POST /api/game/action=200 with stat delta in response body.",
+  "rca of the issue": "STEPS TO REPRO: 1) Open /auth/login on the public URL. 2) Sign in as e1-verify-test@kingdomnotes.test / KingdomTest123!. 3) On /game, DevTools → Network shows /api/game/presence=401, /api/game/challenges=401, /api/game/opportunities=401, /api/game/lodgings?region=na=500. 4) In the browser console, fetch('/api/game/challenges',{credentials:'include'}) → 401 {\"error\":\"Unauthorized\"}. 5) fetch('/api/game/action',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'private_worship'})}) → 401 {\"error\":\"Unauthorized\"}. ROOT CAUSE: Supabase (@supabase/ssr) now stores the auth session cookie in the form 'base64-<b64-encoded-JSON>'. lib/supabase/server.ts does JSON.parse(authCookie) directly on that string, which throws (invalid JSON because of the 'base64-' prefix and base64 body). The catch block then assigns accessToken = authCookie (i.e. the entire 'base64-...' string), which is sent as 'Bearer base64-<b64>' to Supabase — not a valid JWT — so Supabase returns 401. Because the character dashboard also loads data via client-side Supabase (which reads the cookie correctly on the browser), the UI still shows TestMinister's stats, masking the depth of the breakage until you try any /api/game/* call. MITIGATION: In lib/supabase/server.ts, before JSON.parse: `const raw = authCookie.startsWith('base64-') ? Buffer.from(authCookie.slice('base64-'.length), 'base64').toString('utf-8') : authCookie;` then `const parsed = JSON.parse(raw);` and `accessToken = parsed.access_token || parsed[0];`. Ideally replace the whole hand-rolled parser with `createServerClient` from `@supabase/ssr` which handles base64 encoding and chunked cookies automatically."
+}
