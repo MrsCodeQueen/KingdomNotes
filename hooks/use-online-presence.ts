@@ -71,5 +71,5 @@ export function useOnlinePresence(characterId: string | null) {
       // Mark offline on unmount
       markOffline()
     }
-  }, [characterId, supabase])
+  }, [characterId])
 }
