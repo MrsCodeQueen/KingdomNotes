@@ -1,0 +1,33 @@
+{
+  "summary": "VERIFICATION PASS. Main agent's rewrite of lib/supabase/server.ts to use createServerClient from @supabase/ssr with getAll/setAll cookie adapter is correct and works end-to-end. All previously-401 authenticated /api/game/* endpoints now return 200. Full read path (presence, challenges, opportunities, lodgings) and write path (POST /api/game/action) verified in a real browser session logged in as e1-verify-test@kingdomnotes.test. UI reflects the mutation (stat delta + activity log entry). NOTE: an operational step was required — the running next-server process (PID 4187, started 23:13) was older than the rebuilt .next/ bundle (BUILD_ID mtime 23:32), so the fix on disk was not being served. Restarting next start loaded the fixed compiled server.ts and all endpoints flipped from 401/500 to 200. This restart is expected after any rebuild in production mode (`next start` does not hot-reload). Recommend main agent/DevOps ensure a proper restart after every build, or run supervisor-managed process from the correct cwd (supervisor is misconfigured to /app/frontend which does not exist; the app root is /app).",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "supervisor frontend program", "issue": "supervisord conf has `directory=/app/frontend` but the Next.js app lives at /app. Result: supervisor cannot spawn frontend (`ENOENT`) so the process is not auto-managed and stale builds are not picked up on restart. The current next-server was started manually (nohup). Fix supervisor conf to use `directory=/app` or move the app under /app/frontend."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Fix supervisor frontend program directory (currently /app/frontend, should be /app) so restarts after rebuild are automatic and reliable.",
+    "Consider adding a post-build hook or supervisord restart step to guarantee `next start` re-execs after `next build`; otherwise fixes compile to disk but the running process keeps serving stale chunks."
+  ],
+  "critical_code_review_comments": [
+    "lib/supabase/server.ts is now clean and idiomatic — uses @supabase/ssr createServerClient with the Next.js cookies() adapter (getAll/setAll). Handles base64- prefixed and chunked cookies natively. No hand-rolled parsing.",
+    "Route handlers (app/api/game/*/route.ts) correctly await createClient() and call supabase.auth.getUser() to gate on 401. No changes needed here.",
+    "app/api/game/lodgings/route.ts previously returned 500 on unauth; now returns 200 for authenticated user. Consider still hardening it to return 401 (not 500) when session is missing, for symmetry with other routes.",
+    "dev-proxy.mjs (8001 -> 3000 shim) is functioning correctly for ingress; keep it as-is for this preview environment."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (all 5 authenticated /api/game/* endpoints verified 200)", "frontend": "100% (login, dashboard render, read-path panels, write-path action + UI mutation all verified)"},
+  "test_credentials": "e1-verify-test@kingdomnotes.test / KingdomTest123! — login success, character TestMinister loaded, full write path exercised.",
+  "seed_data_creation": "None. Only in-game state mutated for the test user: Daily Devotional claimed (Day 1 streak, +12 xp +35 energy +3 anointing) and one 'Take a Nap' action executed (+78 xp, +8 influence per server response). No new users/rows created.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "server.ts cookie fix is verified in the live browser session. Endpoint statuses on /game for an authenticated session are now: POST /api/game/presence=200, GET /api/game/challenges=200, GET /api/game/opportunities=200, GET /api/game/lodgings?region=na=200, POST /api/game/daily=200 (Claim Daily Devotional), POST /api/game/action=200 (Take a Nap, body: {success:true, resultText, statChanges:{energy,influence,xp}, ...}). If future testing shows 401 again after a rebuild, first check whether the running next-server process predates the new BUILD_ID and restart `next start` before assuming a code regression. Supervisor frontend program is misconfigured (`directory=/app/frontend` -> ENOENT); process is currently running under nohup from /app.",
+  "rca of the issue": "PRIOR ITERATION 2 RCA: hand-rolled JSON.parse on the base64- prefixed @supabase/ssr auth cookie in lib/supabase/server.ts caused all authenticated /api/game/* to return 401. MAIN AGENT FIX: replaced the file with createServerClient({ cookies: { getAll, setAll } }) which handles base64 encoding and chunking automatically. THIS ITERATION EVIDENCE: 1) On /game, DevTools Network shows presence=200, challenges=200, opportunities=200, lodgings=200. 2) Clicking 'Take a Nap' fires POST /api/game/action -> 200 with body {\"success\":true,\"resultText\":\"You took a refreshing nap and recovered 0 energy.\",\"statChanges\":{\"energy\":0,\"influence\":8,\"xp\":78},...}. Header Influence badge updates 0 -> 8; Activity Log adds '11:48 PM You took a refreshing nap and recovered 0 energy. +78 xp +0 energy +8 influence'. 3) Only console error remains the known-harmless /_vercel/insights/script.js 404. SECONDARY ISSUE UNCOVERED: the fix on disk was not being served because the running next-server was launched before the rebuild. Since `next start` does not hot-reload, the compiled route chunks in memory were still the old ones. Killing the stale process and starting `yarn start` from /app made the fix take effect. Supervisor is currently pointing at a non-existent /app/frontend directory (ENOENT loop in frontend.err.log), so the process is not supervisor-managed."
+}
